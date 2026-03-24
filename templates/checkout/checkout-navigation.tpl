@@ -12,21 +12,25 @@
   <div class="{$componentName} {if isset($notifications) && isset($hasNotifications) && $hasNotifications} {$componentName}--has-notifications{/if}">
     <div class="{$componentName}__desktop">
       <ul class="{$componentName}__list" role="tablist">
-        {* Personal Information *}
-        {include file='checkout/_partials/checkout-navigation-step.tpl' number="{l s='1' d='Shop.Theme.Checkout'}"
-        step="checkout-personal-information-step" title="{l s='Personal Information' d='Shop.Theme.Checkout'}"}
+        {foreach from=$steps item="step" key="index"}
+          {if $step.identifier == 'checkout-personal-information-step'}
+            {assign var="step_title" value="{l s='Personal Information' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-addresses-step'}
+            {assign var="step_title" value="{l s='Addresses' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-delivery-step'}
+            {assign var="step_title" value="{l s='Shipping Method' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-payment-step'}
+            {assign var="step_title" value="{l s='Payment' d='Shop.Theme.Checkout'}"}
+          {else}
+            {assign var="step_title" value=$step.identifier|replace:'checkout-':''|replace:'-step':''|replace:'-':' '|capitalize}
+          {/if}
 
-        {* Addresses *}
-        {include file='checkout/_partials/checkout-navigation-step.tpl' number="{l s='2' d='Shop.Theme.Checkout'}"
-        step="checkout-addresses-step" title="{l s='Addresses' d='Shop.Theme.Checkout'}"}
-
-        {* Shipping method *}
-        {include file='checkout/_partials/checkout-navigation-step.tpl' number="{l s='3' d='Shop.Theme.Checkout'}"
-        step="checkout-delivery-step" title="{l s='Shipping method' d='Shop.Theme.Checkout'}" virtual=$cart.is_virtual}
-
-        {* Payment *}
-        {include file='checkout/_partials/checkout-navigation-step.tpl' number="{l s='4' d='Shop.Theme.Checkout'}"
-        step="checkout-payment-step" title="{l s='Payment' d='Shop.Theme.Checkout'}"}
+          {include file='checkout/_partials/checkout-navigation-step.tpl'
+          number=($index + 1)
+          step=$step.identifier
+          title=$step_title
+          virtual=($step.identifier == 'checkout-delivery-step' && isset($cart) && $cart.is_virtual)}
+        {/foreach}
       </ul>
     </div>
 
@@ -36,20 +40,46 @@
       </div>
 
       <div class="{$componentName}__right">
-        {* Personal Information *}
-        {include file='checkout/_partials/checkout-navigation-step-mobile.tpl' step="checkout-personal-information-step" title="{l s='Personal Information' d='Shop.Theme.Checkout'}"
-        subtitle="{l s='Next: Addresses' d='Shop.Theme.Checkout'}"}
+        {foreach from=$steps item="step" key="index"}
+          {if $step.identifier == 'checkout-personal-information-step'}
+            {assign var="step_title" value="{l s='Personal Information' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-addresses-step'}
+            {assign var="step_title" value="{l s='Addresses' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-delivery-step'}
+            {assign var="step_title" value="{l s='Shipping Method' d='Shop.Theme.Checkout'}"}
+          {elseif $step.identifier == 'checkout-payment-step'}
+            {assign var="step_title" value="{l s='Payment' d='Shop.Theme.Checkout'}"}
+          {else}
+            {assign var="step_title" value=$step.identifier|replace:'checkout-':''|replace:'-step':''|replace:'-':' '|capitalize}
+          {/if}
 
-        {* Addresses *}
-        {include file='checkout/_partials/checkout-navigation-step-mobile.tpl' step="checkout-addresses-step" title="{l s='Addresses' d='Shop.Theme.Checkout'}"
-        subtitle="{if !$cart.is_virtual}{l s='Next: Shipping Method' d='Shop.Theme.Checkout'}{else}{l s='Next: Payment' d='Shop.Theme.Checkout'}{/if}"}
+          {assign var="next_step" value=$steps[$index+1]|default:null}
+          {if $next_step && $next_step.identifier == 'checkout-delivery-step' && isset($cart) && $cart.is_virtual}
+            {assign var="next_step" value=$steps[$index+2]|default:null}
+          {/if}
 
-        {* Shipping Method *}
-        {include file='checkout/_partials/checkout-navigation-step-mobile.tpl' step="checkout-delivery-step" title="{l s='Shipping Method' d='Shop.Theme.Checkout'}"
-        subtitle="{l s='Next: Payment' d='Shop.Theme.Checkout'}"}
+          {if $next_step}
+            {if $next_step.identifier == 'checkout-personal-information-step'}
+              {assign var="next_step_title" value="{l s='Personal Information' d='Shop.Theme.Checkout'}"}
+            {elseif $next_step.identifier == 'checkout-addresses-step'}
+              {assign var="next_step_title" value="{l s='Addresses' d='Shop.Theme.Checkout'}"}
+            {elseif $next_step.identifier == 'checkout-delivery-step'}
+              {assign var="next_step_title" value="{l s='Shipping Method' d='Shop.Theme.Checkout'}"}
+            {elseif $next_step.identifier == 'checkout-payment-step'}
+              {assign var="next_step_title" value="{l s='Payment' d='Shop.Theme.Checkout'}"}
+            {else}
+              {assign var="next_step_title" value=$next_step.identifier|replace:'checkout-':''|replace:'-step':''|replace:'-':' '|capitalize}
+            {/if}
+            {assign var="subtitle" value="{l s='Next: %step_name%' d='Shop.Theme.Checkout' sprintf=['%step_name%' => $next_step_title]}"}
+          {else}
+            {assign var="subtitle" value=""}
+          {/if}
 
-        {* Payment *}
-        {include file='checkout/_partials/checkout-navigation-step-mobile.tpl' step="checkout-payment-step" title="{l s='Payment' d='Shop.Theme.Checkout'}"}
+          {include file='checkout/_partials/checkout-navigation-step-mobile.tpl'
+          step=$step.identifier
+          title=$step_title
+          subtitle=$subtitle}
+        {/foreach}
       </div>
     </div>
   </div>

@@ -11,7 +11,11 @@
 {/block}
 
 {block name='content_columns'}
-  {include file='checkout/checkout-navigation.tpl'}
+  {capture name="checkout_process_output"}
+    {render file='checkout/checkout-process.tpl' ui=$checkout_process}
+  {/capture}
+
+  {$smarty.capture.checkout_navigation nofilter}
 
   {block name='checkout_notifications'}
     {include file='_partials/notifications.tpl'}
@@ -23,7 +27,7 @@
         <div class="checkout-grid__content col-lg-8">
           <div class="tab-content">
             {block name='checkout_process'}
-              {render file='checkout/checkout-process.tpl' ui=$checkout_process}
+              {$smarty.capture.checkout_process_output nofilter}
             {/block}
           </div>
         </div>
